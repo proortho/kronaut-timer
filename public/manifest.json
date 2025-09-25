@@ -1,0 +1,26 @@
+{
+  "name": "Kronaut Timer",
+  "short_name": "Kronaut",
+  "description": "The Easy Timer - A simple and powerful timer app with voice commands",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F1E64",
+  "theme_color": "#0F1E64",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en-US"
+}

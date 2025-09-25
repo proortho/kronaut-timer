@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Pause, Play, Square, Volume2, AlertTriangle } from 'lucide-react';
+import { Pause, Play, Square, Volume2, AlertTriangle, CheckCircle } from 'lucide-react';
 import Footer from './Footer';
 import Overlay from './Overlay';
 import AdjustTimerBox from './AdjustTimerBox';
@@ -25,6 +25,7 @@ const TimerRunningScreen: React.FC<TimerRunningScreenProps> = ({
   const [showDeepLinkFallback, setShowDeepLinkFallback] = useState(false);
   const [showTtsError, setShowTtsError] = useState(false);
   const [showAdjustError, setShowAdjustError] = useState(false);
+  const [showTaskInitiated, setShowTaskInitiated] = useState(false);
   const [deepLinkUrl, setDeepLinkUrl] = useState('');
 
   const { speak, stop } = useTTS();
@@ -43,7 +44,7 @@ const TimerRunningScreen: React.FC<TimerRunningScreenProps> = ({
 
   const getProgressColor = () => {
     const totalTime = (timerState.duration.hours * 3600) + (timerState.duration.minutes * 60);
-    const progress = timerState.timeRemaining / totalTime;
+    const progress = totalTime > 0 ? timerState.timeRemaining / totalTime : 0;
     
     if (progress > 0.5) return '#50B699'; // mint
     if (progress > 0.2) return '#FFB020'; // amber
@@ -108,15 +109,18 @@ const TimerRunningScreen: React.FC<TimerRunningScreenProps> = ({
             const url = generateDeepLink(parsed);
             setDeepLinkUrl(url);
             
-            try {
-              window.open(url, '_blank');
-            } catch (error) {
+            const newWindow = window.open(url, '_blank');
+            if (newWindow) {
+              setShowTaskInitiated(true);
+            } else {
               setShowDeepLinkFallback(true);
-              return;
             }
+          } else {
+            onComplete();
           }
+        } else {
+          onComplete();
         }
-        onComplete();
         break;
     }
   }, [timerState.action, speak, showNotification, onComplete]);
@@ -224,6 +228,25 @@ const TimerRunningScreen: React.FC<TimerRunningScreenProps> = ({
           <p className="text-slate font-poppins">Could not play the announcement audio. Please check your browser settings.</p>
         </div>
         <button onClick={() => { setShowTtsError(false); onComplete(); }} className="w-full bg-mint text-white font-poppins py-2 px-4 rounded-lg">OK</button>
+      </Overlay>
+
+      <Overlay
+        isOpen={showTaskInitiated}
+        onClose={() => { setShowTaskInitiated(false); onComplete(); }}
+        title="Task Initiated"
+      >
+        <div className="text-center">
+          <CheckCircle size={40} className="text-mint mx-auto mb-4" />
+          <p className="text-slate font-poppins mb-4">
+            Your task has been initiated. You can now return to the app.
+          </p>
+        </div>
+        <button
+          onClick={() => { setShowTaskInitiated(false); onComplete(); }}
+          className="w-full bg-mint text-white font-poppins py-2 px-4 rounded-lg"
+        >
+          Done
+        </button>
       </Overlay>
 
       <Overlay
